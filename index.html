@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Budapest Stay Compass</title>
+  <link rel="preconnect" href="https://maps.googleapis.com">
+  <link rel="preconnect" href="https://maps.gstatic.com">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell" id="appShell">
+    <section class="panel" aria-label="Budapest stay planner">
+      <header class="panel-header">
+        <div>
+          <p class="eyebrow">Budapest</p>
+          <h1>Stay Compass</h1>
+        </div>
+        <button class="icon-button" id="infoButton" type="button" aria-label="Open methodology">
+          <span aria-hidden="true">i</span>
+        </button>
+      </header>
+
+      <div class="mode-switch" role="group" aria-label="Trip style">
+        <button class="mode-button active" type="button" data-mode="balanced" aria-label="Trip style: Balanced">Balanced</button>
+        <button class="mode-button" type="button" data-mode="quiet" aria-label="Trip style: Quiet">Quiet</button>
+        <button class="mode-button" type="button" data-mode="nightlife" aria-label="Trip style: Nightlife">Nightlife</button>
+        <button class="mode-button" type="button" data-mode="premium" aria-label="Trip style: Premium">Premium</button>
+      </div>
+
+      <section class="score-card" aria-label="Current recommendation">
+        <div class="score-ring" id="scoreRing" aria-hidden="true">88</div>
+        <div>
+          <p class="score-label">Best fit right now</p>
+          <h2 id="bestFitTitle">District V, inner Pest</h2>
+          <p id="bestFitCopy">Central, walkable, polished, and easy to understand on a first trip.</p>
+        </div>
+      </section>
+
+      <section class="layers" aria-label="Map layers">
+        <div class="section-title">
+          <h2>Signals</h2>
+          <button id="resetView" type="button">Reset</button>
+        </div>
+        <button class="noise-lens-button" id="showNoiseButton" type="button" aria-pressed="false">
+          <span class="swatch noise"></span>
+          <span>Show noise</span>
+        </button>
+        <button class="style-lens-button" id="showStyleButton" type="button" aria-pressed="false">
+          <span class="swatch style"></span>
+          <span>Beauty heat</span>
+        </button>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="stay" checked>
+          <span class="swatch stay"></span>
+          <span>Recommended stays</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="noise" checked>
+          <span class="swatch noise"></span>
+          <span>Noise and nightlife</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="caution" checked>
+          <span class="swatch caution"></span>
+          <span>Rougher / higher caution</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="hardship" checked>
+          <span class="swatch hardship"></span>
+          <span>Visible street hardship</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="fancy" checked>
+          <span class="swatch fancy"></span>
+          <span>Fancy and polished</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="posh" checked>
+          <span class="swatch posh"></span>
+          <span>Posh residential</span>
+        </label>
+      </section>
+
+      <section class="opacity-control" aria-label="Layer strength">
+        <div class="section-title">
+          <h2>Gradient strength</h2>
+          <output id="opacityValue" for="opacityRange">72%</output>
+        </div>
+        <input id="opacityRange" type="range" min="35" max="95" value="72">
+      </section>
+
+      <section class="recommendations" aria-label="Recommended areas">
+        <div class="section-title">
+          <h2>Where to stay</h2>
+          <span id="areaCount">7 areas</span>
+        </div>
+        <div id="areaList" class="area-list"></div>
+      </section>
+    </section>
+
+    <section class="map-wrap" aria-label="Budapest map">
+      <div id="map"></div>
+      <div class="map-hud" aria-live="polite">
+        <button class="map-action-pill info-action" id="moreInfoButton" type="button" aria-pressed="false">
+          <span class="dot info"></span>
+          <span>More info</span>
+        </button>
+        <button class="map-action-pill beauty-action" id="showBeautyMapButton" type="button" aria-pressed="false">
+          <span class="dot style"></span>
+          <span>Beauty heat</span>
+        </button>
+        <button class="legend-pill social-pill" id="universitiesButton" type="button" aria-pressed="true" data-social-layer="universities">
+          <span class="dot uni"></span>
+          <span>universities</span>
+        </button>
+        <button class="legend-pill social-pill" id="studentHomesButton" type="button" aria-pressed="true" data-social-layer="studentHomes">
+          <span class="dot dorm"></span>
+          <span>student stays</span>
+        </button>
+        <button class="legend-pill social-pill" id="studentSpotsButton" type="button" aria-pressed="true" data-social-layer="studentSpots">
+          <span class="dot spot"></span>
+          <span>student spots</span>
+        </button>
+        <button class="legend-pill planning-pill score-hint" id="sleepScoreHintButton" type="button">
+          <span class="dot sleep"></span>
+          <span>click map for sleep score</span>
+        </button>
+        <button class="legend-pill planning-pill" id="bestStayMapButton" type="button" aria-pressed="false" data-map-layer="stay">
+          <span class="dot stay"></span>
+          <span>best stay fit</span>
+        </button>
+        <button class="legend-pill planning-pill" id="nightNoiseMapButton" type="button" aria-pressed="false" data-map-layer="noise">
+          <span class="dot noise"></span>
+          <span>louder at night</span>
+        </button>
+        <button class="legend-pill planning-pill" id="cautionMapButton" type="button" aria-pressed="false" data-map-layer="caution">
+          <span class="dot caution"></span>
+          <span>more caution</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <aside class="detail-sheet" id="detailSheet" aria-live="polite" aria-label="Selected area">
+    <button class="sheet-close" id="sheetClose" type="button" aria-label="Close details">x</button>
+    <p class="eyebrow" id="sheetKicker">Selected area</p>
+    <h2 id="sheetTitle">District V</h2>
+    <p id="sheetCopy"></p>
+    <div class="metric-grid" id="sheetMetrics"></div>
+    <div class="tip-box" id="sheetTip"></div>
+  </aside>
+
+  <dialog id="methodDialog" class="method-dialog">
+    <form method="dialog">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Method</p>
+          <h2>Readable travel signals, not official risk scoring</h2>
+        </div>
+        <button class="icon-button" value="close" aria-label="Close methodology">x</button>
+      </div>
+      <p>
+        The gradients are practical planning layers based on recent travel guides, nightlife reporting,
+        neighborhood descriptions, and common visitor advice. They are intentionally fuzzy: a single
+        building, hotel, or street can feel different from the wider area.
+      </p>
+      <p>
+        The default view is social-first: beauty/style heat, universities, student accommodation, and
+        student hangout pins. Click More info to reveal the accommodation and sleep-planning tools.
+      </p>
+      <p>
+        "Visible street hardship" means places where visitors more often report rougher public-space
+        conditions, shelters, station underpasses, or people asking for help. It is not a judgement of
+        people experiencing homelessness, and it is not a safety accusation.
+      </p>
+      <p>
+        Click-to-score uses Google Places for nearby bars, nightclubs, and transit stations, then combines
+        that with local noise/junction heuristics. Google Maps does not directly expose traffic-light noise,
+        so corner and high-street risk is inferred from busy junctions, station edges, and whether the exact
+        clicked point sits very close to a major road corridor. Central side streets are not treated as noisy
+        just because they are central. Ordinary bars are a mild signal; nightclubs and club-like venues are
+        weighted much more heavily because bass, queues, taxis, and late spillover are the real sleep risk.
+      </p>
+      <ul>
+        <li>Pick green areas for a first visit or sleep-sensitive trip.</li>
+        <li>Use purple/red noise layers to avoid party streets and train-station edges.</li>
+        <li>Use gold/blue layers when you want polished hotels, views, and calmer streets.</li>
+      </ul>
+    </form>
+  </dialog>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcKs50I4rNh7XB5hl4gI6EDq5fv9regIE&libraries=places&loading=async&callback=initMap&v=weekly"></script>
+</body>
+</html>
