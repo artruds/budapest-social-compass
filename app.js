@@ -26,6 +26,8 @@ let swimTimer;
 let noiseLensActive = false;
 let styleLensActive = false;
 let infoOpen = false;
+let tourStep = 0;
+const tourStorageKey = "budapest-social-compass-tour-v1";
 const stayOverlays = [];
 const signalOverlays = {};
 const noiseLensOverlays = [];
@@ -1125,12 +1127,76 @@ function setInfoOpen(open) {
   button.querySelector("span:last-child").textContent = infoOpen ? "Hide info" : "More info";
 }
 
+function renderTourStep() {
+  const dialog = document.getElementById("tourDialog");
+  if (!dialog) return;
+  const steps = [...dialog.querySelectorAll(".tour-step")];
+  const dots = [...dialog.querySelectorAll(".tour-dots span")];
+  steps.forEach((step, index) => step.classList.toggle("active", index === tourStep));
+  dots.forEach((dot, index) => dot.classList.toggle("active", index === tourStep));
+
+  const backButton = document.getElementById("tourBackButton");
+  const nextButton = document.getElementById("tourNextButton");
+  backButton.disabled = tourStep === 0;
+  nextButton.textContent = tourStep === steps.length - 1 ? "Start exploring" : "Next";
+}
+
+function openTour(step = 0) {
+  const dialog = document.getElementById("tourDialog");
+  if (!dialog) return;
+  const steps = dialog.querySelectorAll(".tour-step");
+  tourStep = Math.min(Math.max(step, 0), steps.length - 1);
+  renderTourStep();
+  if (!dialog.open) dialog.showModal();
+}
+
+function closeTour(remember = true) {
+  const dialog = document.getElementById("tourDialog");
+  if (remember) {
+    try {
+      localStorage.setItem(tourStorageKey, "seen");
+    } catch (error) {
+      console.warn("Tour preference could not be saved", error);
+    }
+  }
+  if (dialog?.open) dialog.close();
+}
+
+function showTourIfFirstVisit() {
+  try {
+    if (localStorage.getItem(tourStorageKey) === "seen") return;
+  } catch (error) {
+    console.warn("Tour preference could not be read", error);
+  }
+  window.setTimeout(() => openTour(0), 650);
+}
+
+function nextTourStep() {
+  const dialog = document.getElementById("tourDialog");
+  const stepCount = dialog?.querySelectorAll(".tour-step").length ?? 0;
+  if (tourStep >= stepCount - 1) {
+    closeTour(true);
+    return;
+  }
+  tourStep += 1;
+  renderTourStep();
+}
+
+function previousTourStep() {
+  tourStep = Math.max(0, tourStep - 1);
+  renderTourStep();
+}
+
 function wireControls() {
+  document.getElementById("guideButton").addEventListener("click", () => openTour(0));
   document.getElementById("moreInfoButton").addEventListener("click", () => setInfoOpen(!infoOpen));
   document.getElementById("showNoiseButton").addEventListener("click", toggleNoiseLens);
   document.getElementById("showStyleButton").addEventListener("click", toggleStyleLens);
   document.getElementById("showBeautyMapButton").addEventListener("click", toggleStyleLens);
   document.getElementById("sleepScoreHintButton").addEventListener("click", showSleepScoreHint);
+  document.getElementById("tourSkipButton").addEventListener("click", () => closeTour(true));
+  document.getElementById("tourBackButton").addEventListener("click", previousTourStep);
+  document.getElementById("tourNextButton").addEventListener("click", nextTourStep);
 
   document.querySelectorAll("[data-social-layer]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1299,6 +1365,7 @@ window.initMap = function initMap() {
   styleLensActive = true;
   addStyleLens();
   syncStyleButtons();
+  showTourIfFirstVisit();
   map.addListener("click", (event) => {
     if (event.placeId) event.stop();
     if (!infoOpen) return;

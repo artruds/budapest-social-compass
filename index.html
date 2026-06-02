@@ -102,6 +102,10 @@
     <section class="map-wrap" aria-label="Budapest map">
       <div id="map"></div>
       <div class="map-hud" aria-live="polite">
+        <button class="map-action-pill guide-action" id="guideButton" type="button">
+          <span class="dot guide"></span>
+          <span>Guide</span>
+        </button>
         <button class="map-action-pill info-action" id="moreInfoButton" type="button" aria-pressed="false">
           <span class="dot info"></span>
           <span>More info</span>
@@ -188,6 +192,44 @@
         <li>Use gold/blue layers when you want polished hotels, views, and calmer streets.</li>
       </ul>
     </form>
+  </dialog>
+
+  <dialog id="tourDialog" class="tour-dialog" aria-label="Quick guide">
+    <div class="tour-card">
+      <div class="tour-step active" data-tour-step="0">
+        <p class="eyebrow">Quick guide</p>
+        <h2>Budapest social map</h2>
+        <p>Red, orange, and yellow heat zones show the strongest style and social-scene areas from the list.</p>
+      </div>
+      <div class="tour-step" data-tour-step="1">
+        <p class="eyebrow">Student layer</p>
+        <h2>Universities, stays, spots</h2>
+        <p>Blue pins are universities, teal pins are student accommodation, and green pins are student hangouts.</p>
+      </div>
+      <div class="tour-step" data-tour-step="2">
+        <p class="eyebrow">Planning mode</p>
+        <h2>More info</h2>
+        <p>Tap More info when you want stay recommendations, nightlife noise, caution layers, and exact sleep scoring.</p>
+      </div>
+      <div class="tour-step" data-tour-step="3">
+        <p class="eyebrow">Sleep check</p>
+        <h2>Click any place</h2>
+        <p>In More info mode, tapping a building or street corner gives a sleep score based mostly on clubs, late bars, traffic, and transit edges.</p>
+      </div>
+      <div class="tour-footer">
+        <button class="tour-secondary" id="tourSkipButton" type="button">Skip</button>
+        <div class="tour-dots" aria-hidden="true">
+          <span class="active"></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="tour-actions">
+          <button class="tour-secondary" id="tourBackButton" type="button">Back</button>
+          <button class="tour-primary" id="tourNextButton" type="button">Next</button>
+        </div>
+      </div>
+    </div>
   </dialog>
 
   <script src="./data.js"></script>
